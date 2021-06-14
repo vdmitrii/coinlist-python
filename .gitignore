@@ -2,6 +2,12 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.pyenv
+.pyproject.toml
+poetry.lock
+.python-version
+.pyproject.toml.swp
+
 
 # C extensions
 *.so
