@@ -27,14 +27,13 @@ class CoinlistApi:
         # self.traider_id = ''
 
     def get_traider_id(self):
-        response = self._make_requests('GET', '/v1/accounts')
-        # traider_id = response.json()['accounts'][0]['trader_id']
-        # print(response.status_code)
+        response = self._make_request('GET', '/v1/accounts')
+        # traider_id = response['accounts'][0]['trader_id']
         return response
 
     def get_account_summary(self):
         traider_id = self.get_traider_id()
-        response = self._make_requests('GET', f'/v1/accounts/{self.traider_id}')
+        response = self._make_request('GET', f'/v1/accounts/{self.traider_id}')
         asset_balances = response.json()['asset_balances']
         asset_holds = response.json()['asset_holds']
         net_liquidation_value_usd = response.json()['net_liquidation_value_usd']
@@ -45,34 +44,27 @@ class CoinlistApi:
         message = message.encode('utf-8')
         h = hmac.new(secret, message, digestmod=hashlib.sha256)
         signature = base64.b64encode(h.digest())
+        # print(signature.decode('utf-8'))
         return signature.decode('utf-8')
 
-    def _make_requests(self, method: str='POST', path: str='', data: str='', timeout: int=10):
-        url = self.endpoint_url + path
-        print('url', url)
+    def _make_request(self, method: str, path: str, data: dict={}, params: dict={}):
+        path_with_params = requests.Request(method, self.endpoint_url + path, params=params).prepare().path_url
         timestamp = str(int(time.time()))
-        print('timestamp', timestamp)
         json_body = json.dumps((data), separators=(',', ':')).strip()
-        print('json_body', json_body)
-        message = timestamp + method + path + json_body
-        print('message', message)
+        message = timestamp + method + path_with_params + ('' if not data else json_body)
         signature = self._sign(message, self.access_secret)
-        print('signature', signature)
         headers = {
             'Content-Type': 'application/json',
             'CL-ACCESS-KEY': self.access_key,
             'CL-ACCESS-SIG': signature,
             'CL-ACCESS-TIMESTAMP': timestamp
         }
-        print(headers)
-        s = Session()
-        req = Request(method=method, url=url, data=json_body, headers=headers)
-        prepped = s.prepare_request(req)
-        response = s.send(prepped, timeout=timeout)
-        return response.json()
+        url = self.endpoint_url + path_with_params
+        r = requests.request(method, url, headers=headers, data=json_body)
+        return r.json()
 
     def show_symbols(self):
-        r = self._make_requests('GET', '/v1/symbols')
+        r = self._make_request('GET', '/v1/symbols')
         response = r.json().get('symbols')
         symbols = []
         with open('symbols.txt', 'w') as f:
@@ -89,7 +81,7 @@ class CoinlistApi:
             'price': price,
             "origin": "api"
         }
-        response = self._make_requests(method='POST', path='/v1/orders', data=data)
+        response = self._make_request(method='POST', path='/v1/orders', data=data)
         try:
             returned = response.json()['order']['order_id']
         except Exception:
@@ -97,18 +89,18 @@ class CoinlistApi:
         return returned
 
     def create_orders(self, symbol: str):
-        response = self._make_requests('POST', '/v1/orders/bulk')
+        response = self._make_request('POST', '/v1/orders/bulk')
         print(response.status_code)
 
     def cancel_order(self, order_id: str):
         params = {'order_id': str(order_id)}
-        res = self._make_requests('DELETE', f'/v1/orders/{order_id}', data=params)
+        res = self._make_request('DELETE', f'/v1/orders/{order_id}', data=params)
         return res
 
     def cancel_by_symbol(self, symbol: str='ICP-USD'):
         headers = {'accept': 'application/json'}
         data = {'symbol': symbol}
-        res = self._make_requests('DELETE', '/v1/orders', data=data)
+        res = self._make_request('DELETE', '/v1/orders', data=data)
         return res
 
     def cancel_all(self, uids: list=None):
@@ -117,17 +109,17 @@ class CoinlistApi:
             'accept': 'application/json',
             'Content-Type': 'application/json'
         }
-        res = self._make_requests('DELETE', '/v1/orders', data=uids)
+        res = self._make_request('DELETE', '/v1/orders', data=uids)
         return res
 
     def get_orders(self, order_id: str):
         data={}
-        response = self._make_requests('GET', f'/v1/symbols/{order_id}', data=data)
+        response = self._make_request('GET', f'/v1/symbols/{order_id}', data=data)
         print(response.status_code)
 
     def get_symbol(self, symbol: str):
         data={}
-        response = self._make_requests('GET', f'/v1/symbols/{symbol}', data=data)
+        response = self._make_request('GET', f'/v1/symbols/{symbol}', data=data)
         print(response.status_code)
 
     def exchange_time(self):
@@ -148,6 +140,6 @@ class CoinlistApi:
 
 if __name__ == '__main__':
     coinlist = CoinlistApi(ACCESS_KEY, ACCESS_SECRET)
-    print(ACCESS_KEY)
-    print(ACCESS_SECRET)
+    # print(ACCESS_KEY)
+    # print(ACCESS_SECRET)
     print(coinlist.get_traider_id())
