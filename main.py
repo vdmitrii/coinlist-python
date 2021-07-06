@@ -261,8 +261,85 @@ class CoinlistApi:
         response = self._make_request('GET', f'/v1/accounts/{trader_id}/wallets')
         return response
 
+    def get_daily_account_summary(self):
+        """Get Daily Account Summary
+
+        Returns:
+            dict: An object containing an array of daily transaction summaries.
+        """
+        trader_id = self.get_traider_id()
+        response = self._make_request('GET', f'/v1/accounts/{trader_id}/ledger-summary')
+        return response
+
+    def get_list_balances(self):
+        """List Balances
+
+        Returns:
+            dict: An object containing balance details.
+        """
+        response = self._make_request('GET', f'/v1/balances')
+        return response
+
+    def get_list_fills(self):
+        """List Fills
+
+        Returns:
+            dict: An object containing an array of fills.
+        """
+        response = self._make_request('GET', f'/v1/fills')
+        return response
+
+    def get_list_apikeys(self):
+        """List API Keys
+
+        Returns:
+            dict: An object containing an array of keys.
+        """
+        trader_id = self.get_traider_id()
+        response = self._make_request('GET', f'/v1/balances')
+        return response
+
+    # ORDERS
+    def get_list_orders(self):
+        """List Orders
+
+        Returns:
+            dict: An object containing an array of orders.
+        """
+        response = self._make_request('GET', f'/v1/orders')
+        return response
+
+    def create_order(self, price: float, size: int, symbol: str, side: str='sell', order_type: str='limit'):
+        """Create Order
+
+        Args:
+            price (float): The price of this order (if the order is of type limit).
+            size (float): The quantity to buy or sell.
+            symbol (str): The symbol for which the order is placed.
+            side (str): Can be buy or sell. Defaults to 'sell'.
+            order_type (str): The type of order, which controls how the order will be executed. 
+                              One of: market, limit, stop_market, stop_limit, take_market, or take_limit.
+                              Defaults to 'limit'.
+        Returns:
+            202 status: New order request received.
+        """
+        data = {
+            'symbol': symbol,
+            'type': order_type,
+            'side': side,
+            'size': size,
+            'price': price,
+            "origin": "api"
+            }
+        response = self._make_request(method='POST', path='/v1/orders', data=data)
+        try:
+            returned = response.json()['order']['order_id']
+        except Exception as e:
+                print('Error while creating the order: ', e)
+        return returned
+
 
 if __name__ == '__main__':
     coinlist = CoinlistApi(ACCESS_KEY, ACCESS_SECRET)
-    res = coinlist.get_coinlist_wallets()
+    res = coinlist.get_list_orders()
     print(res)
