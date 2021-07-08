@@ -338,6 +338,57 @@ class CoinlistApi:
                 print('Error while creating the order: ', e)
         return returned
 
+    def cancel_orders(self, symbol: str):
+        """Cancel All Orders
+
+        Args:
+            symbol (str): The symbol for which the order is placed.
+        Returns:
+            202	Accepted: Request received message.
+        """
+        response = self._make_request('DELETE', f'/v1/orders', data={'symbols': symbol})
+        return response
+
+    def get_order(self, order_id: str):
+        """Get Specific Order (by id)
+
+        Args:
+            order_id (str): Order to retrieve.
+        Returns:
+            dict: An object containing an order.
+        """
+        response = self._make_request('GET', f'/v1/orders/{order_id}')
+        return response
+
+    def modify_order(self, order_id: str, price: float, size: int, symbol: str, side: str='sell', order_type: str='limit'):
+        """Modify Existing Order
+
+        You may modify the type, size, price, stop_price, and stop_trigger of an order. 
+        Your modified order will not retain the time-priority of the original order. 
+        Your order will retain the same order id.
+        Args:
+            order_id (str): Order to retrieve.
+            price (float): The price of this order (if the order is of type limit).
+            size (float): The quantity to buy or sell.
+            symbol (str): The symbol for which the order is placed.
+            side (str): Can be buy or sell. Defaults to 'sell'.
+            order_type (str): The type of order, which controls how the order will be executed. 
+                              One of: market, limit, stop_market, stop_limit, take_market, or take_limit.
+                              Defaults to 'limit'.
+        Returns:
+            dict: An object containing an array of modifed order params.
+        """
+        data = {
+            'symbol': symbol,
+            'type': order_type,
+            'side': side,
+            'size': size,
+            'price': price,
+            }
+        response = self._make_request('PATCH', f'/v1/orders/{order_id}', data=data )
+        return response
+
+
 
 if __name__ == '__main__':
     coinlist = CoinlistApi(ACCESS_KEY, ACCESS_SECRET)
