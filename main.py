@@ -388,9 +388,76 @@ class CoinlistApi:
         response = self._make_request('PATCH', f'/v1/orders/{order_id}', data=data )
         return response
 
+    ## TO-DO
+    def create_orders(self, price: float, size: int, symbol: str, side: str, order_type: str):
+        """Create New Orders
 
+        Args:
+            body (list of dict): Orders to create
+        """
+        data = [{
+            'symbol': symbol,
+            'type': order_type,
+            'side': side,
+            'size': size,
+            'price': price,
+            }]
+        response = self._make_request('POST', f'/v1/orders/bulk', data=data )
+        return response
+
+    # Reports
+    def get_reports(self, count: int=200):
+        """List Report Requests
+
+        Args:
+            count (int, optional): Maximum item count per page (default 200; max 500)
+
+        Returns:
+            dict: An object containing an array of report requests
+        """
+        response = self._make_request('GET', f'/v1/reports', params=str(count))
+        return response
+
+    # TO-DO
+    def get_fills(self, report_type: str='fills'):
+        """Request Report
+
+        Request a new fills or account report (CSV)
+        Args:
+            count (int, optional): Maximum item count per page (default 200; max 500)
+
+        Returns:
+            dict: An object containing an array of report requests
+        """
+
+    def get_transfers(self, start_time: str='', end_time: str='', descending: bool=False, count: int=200):
+        """List Transfers
+
+        Args:
+            start_time (str): Start date-time for results (inclusive; filter on created_at).
+            end_time (str): End date-time for results (inclusive; filter on created_at).
+            descending (bool): If true, sort newest results first (default false).
+            count (int): Maximum item count per page (default 200; max 500).
+
+         Returns:
+            dict: An object containing an array of transfers.
+        """
+        params = {
+            start_time: start_time,
+            end_time: end_time,
+            descending: descending,
+            count: count
+        }
+        response = self._make_request('GET', f'/v1/transfers', params=params)
+        return response
+
+    def transfer_to_wallet(self):
+
+
+        response = self._make_request('POST', f'/v1/transfers/to-wallet', data=data, params=params)
+        
 
 if __name__ == '__main__':
     coinlist = CoinlistApi(ACCESS_KEY, ACCESS_SECRET)
-    res = coinlist.get_list_orders()
+    res = coinlist.get_transfers()
     print(res)
