@@ -439,7 +439,7 @@ class CoinlistApi:
             descending (bool): If true, sort newest results first (default false).
             count (int): Maximum item count per page (default 200; max 500).
 
-         Returns:
+        Returns:
             dict: An object containing an array of transfers.
         """
         params = {
@@ -451,13 +451,62 @@ class CoinlistApi:
         response = self._make_request('GET', f'/v1/transfers', params=params)
         return response
 
-    def transfer_to_wallet(self):
+    def transfer_to_wallet(self, asset: str='BTC', amont: int=0):
+        """Transfer Funds From Pro to Wallet
 
+        Args:
+            asset (str): The asset to transfer (e.g. BTC).
+            amont (int): The value of the transfer (in quantity).
 
+        Returns:
+            string: The transfer id of the new request.
+        """
+        data = {}
+        params = {
+            asset: asset,
+            amont: str(amont)
+        }
         response = self._make_request('POST', f'/v1/transfers/to-wallet', data=data, params=params)
-        
+        return response
+
+    def transfer_from_wallet(self, asset: str='BTC', amont: int=0):
+        """Transfer Funds From Wallet to Pro
+
+        Args:
+            asset (str): The asset to transfer (e.g. BTC).
+            amont (int): The value of the transfer (in quantity).
+
+        Returns:
+            string: The transfer id of the new request.
+        """
+        data = {}
+        params = {
+            asset: asset,
+            amont: str(amont)
+        }
+        response = self._make_request('POST', f'/v1/transfers/from-wallet', data=data, params=params)
+        return response
+
+    def transfer_between_wallet(self, asset: str='BTC', amont: int=0):
+        """Transfer Funds Between Entities
+
+        Args:
+            asset (str): The asset to transfer (e.g. BTC).
+            amont (int): The value of the transfer (in quantity).
+
+        Returns:
+            string: The transfer id of the new request.
+        """
+        data = {}
+        params = {
+            asset: asset,
+            amont: str(amont)
+        }
+        response = self._make_request('POST', f'/v1/transfers/internal-transfer', data=data, params=params)
+        return response
+
 
 if __name__ == '__main__':
     coinlist = CoinlistApi(ACCESS_KEY, ACCESS_SECRET)
-    res = coinlist.get_transfers()
+    res = coinlist.transfer_to_wallet()
     print(res)
