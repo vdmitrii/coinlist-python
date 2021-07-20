@@ -6,12 +6,12 @@ import os
 import threading
 import time
 import uuid
+from datetime import datetime
 
 import requests
 # import websocket
 from dotenv import load_dotenv
 from requests import Request, Session
-
 
 load_dotenv()
 ACCESS_KEY = os.getenv('ACCESS_KEY')
@@ -505,8 +505,94 @@ class CoinlistApi:
         response = self._make_request('POST', f'/v1/transfers/internal-transfer', data=data, params=params)
         return response
 
+    # Market Data API
+    ## Auctions
+
+    def get_candles(self, 
+                    symbol: str, 
+                    field_name: str='price', 
+                    start_time: str=str(datetime(2011, 11, 4, 0, 0, 0)),
+                    end_time: str=str(datetime.today()), 
+                    granularity: str='1m', 
+                    format: str='json'):
+        """Get historic price data (OHLC) for a symbol.
+
+        Args:
+            symbol (str): Required.
+            field_name (str): enumerated value(price, fair_price, best_ask, best_bid). Default: "price".
+            start_time (str): date-time. Default: datetime(2011, 11, 4, 0, 0, 0)).
+            end_time (str): date-time. Default: time at the moment of request.
+            granularity (str): enumerated value(1m, 5m, 30m). Default: "1m".
+            format (str): enumerated value(json, csv). Default: 'json'.
+
+        Returns:
+            dict: Candles are returned in the form [time, open, high, low, close, volume, index_close].
+        """
+        data = {
+            'symbol': symbol,
+            'field_name': field_name, 
+            'start_time': start_time,
+            'end_time': end_time, 
+            'granularity': granularity, 
+            'format': format
+        }
+        response = self._make_request('GET', f'/v1/symbols/{symbol}/candles', data=data)
+        return response
+
+    def get_auctions(self,
+                    symbol: str,
+                    min_volume: str='price',
+                    start_time: str=str(datetime(2011, 11, 4, 0, 0, 0)),
+                    end_time: str=str(datetime.today()),
+                    descending: bool=False, 
+                    count: int=200):
+        """List Auctions
+
+        Args:
+            symbol (str): The symbol to list auctions for.
+            min_volume (str, optional): Return auctions with greater than or equal to this trade volume. Defaults to 'price'.
+            start_time (str, optional): Start date-time for results (inclusive; filter on logical_time).
+            end_time (str, optional): End date-time for results (inclusive; filter on logical_time).
+            descending (bool, optional): If true, sort newest results first (default false). Defaults to False.
+            count (int, optional): Maximum item count per page (default 200; max 500). Defaults to 200.
+
+        Returns:
+            List: Returns historical, complete auctions for the given symbol - in descending chronological order. Indicative auctions are not included.
+        """
+        data = {
+            'symbol': symbol,
+            'min_volume': min_volume,
+            'start_time': start_time,
+            'end_time': end_time,
+            'descending': descending,
+            'count': count
+        }
+        response = self._make_request('GET', f'/v1/symbols/{symbol}/auctions', data=data)
+        return response
+
+    def get_auction_results(self, symbol: str, auction_code: str):
+        """Get Auction Results
+
+        Args:
+            symbol (str): The symbol to list auctions for.
+            auction_code (str): Required True. Code for auction.
+
+        Returns:
+            Dict: Get auction results for a specific (historical) auction.
+        """
+        response = self._make_request('GET', f'/v1/symbols/{symbol}/auctions/{auction_code}', params=auction_code)
+        return response
+
+    ## Order Books
+    def get_order_book():
+        return None
+
+    def get_quote():
+        return None
+
+    ## Symbols
 
 if __name__ == '__main__':
     coinlist = CoinlistApi(ACCESS_KEY, ACCESS_SECRET)
-    res = coinlist.transfer_to_wallet()
+    res = coinlist.get_auctions(symbol='ICP-USDT')
     print(res)
