@@ -507,7 +507,6 @@ class CoinlistApi:
 
     # Market Data API
     ## Auctions
-
     def get_candles(self, 
                     symbol: str, 
                     field_name: str='price', 
@@ -584,15 +583,33 @@ class CoinlistApi:
         return response
 
     ## Order Books
-    def get_order_book():
-        return None
+    def get_order_book(self, symbol: str):
+        """Get Order Book (Level 2)
 
-    def get_quote():
-        return None
+        Args:
+            symbol (str): The symbol.
+
+        Returns:
+            Dict: Get the full, price-aggregated order book for a symbol.
+        """
+        response = self._make_request('GET', f'/v1/symbols/{symbol}/book')
+        return response
+
+    def get_quote(self, symbol: str):
+        """Get Quote (Level 1)
+
+        Args:
+            symbol (str): The symbol.
+
+        Returns:
+            Dict: Get the latest quote data including last trade, best bid, and best ask.
+        """
+        response = self._make_request('GET', f'/v1/symbols/{symbol}/quote')
+        return response
 
     ## Symbols
 
 if __name__ == '__main__':
     coinlist = CoinlistApi(ACCESS_KEY, ACCESS_SECRET)
-    res = coinlist.get_auctions(symbol='ICP-USDT')
+    res = coinlist.get_quote(symbol='ICP-USDT')
     print(res)
