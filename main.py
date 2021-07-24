@@ -608,6 +608,51 @@ class CoinlistApi:
         return response
 
     ## Symbols
+    def get_symbols(self):
+        """List Symbols
+
+        Returns:
+            Dict: Get symbols and metadata for all active markets on CoinList Pro.
+        """
+        response = self._make_request('GET', f'/v1/symbols')
+        return response
+
+    def get_symbol_summaries(self, symbol: str):
+        """Get Symbol Summaries
+
+        Args:
+            symbol (str): The symbol.
+
+        Returns:
+            Dict: Get recent performance data for all active markets on CoinList Pro.
+        """
+        response = self._make_request('GET', f'/v1/symbols/summary')
+        return response
+
+    def get_specific_symbol(self, symbol: str):
+        """Get Specific Symbol
+
+        Args:
+            symbol (str): The symbol.
+
+        Returns:
+            Dict: Get symbol metadata.
+        """
+        response = self._make_request('GET', f'/v1/symbols/summary')
+        return response
+
+    def get_market_summary(self, symbol: str):
+        """Get Market Summary
+
+        Args:
+            symbol (str): The symbol.
+
+        Returns:
+            Dict: Get a summary of recent market performance for a given symbol.
+        """
+        response = self._make_request('GET', f'/v1/symbols/{symbol}')
+        return response
+
 
 if __name__ == '__main__':
     coinlist = CoinlistApi(ACCESS_KEY, ACCESS_SECRET)
