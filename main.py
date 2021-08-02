@@ -19,8 +19,6 @@ ACCESS_SECRET = os.getenv('ACCESS_SECRET')
 
 
 class CoinlistApi:
-    """Class for working with The CoinList Pro API
-    """
     def __init__(self, access_key: str = ACCESS_KEY, access_secret: str = ACCESS_SECRET):
         self.access_key = access_key
         self.access_secret = access_secret
@@ -28,10 +26,10 @@ class CoinlistApi:
         self.wss_url = 'wss://trade-api.coinlist.co'
 
     def get_traider_id(self):
-        """[summary]
+        """Get traider ID
 
         Returns:
-            [type]: [description]
+            String: Traider ID.
         """
         response = self._make_request('GET', '/v1/accounts')
         traider_id = response['accounts'][0]['trader_id']
@@ -46,14 +44,10 @@ class CoinlistApi:
         return asset_balances, asset_holds, net_liquidation_value_usd
 
     def _sign(self, message: str, secret: str):
-        """[summary]
-
-        Args:
-            message (str): [description]
-            secret (str): [description]
+        """Signing a message
 
         Returns:
-            [type]: [description]
+            String: base64-encode the signature (the output of the sha256 HMAC)
         """
         secret = base64.b64decode(self.access_secret).strip()
         message = message.encode('utf-8')
@@ -62,13 +56,13 @@ class CoinlistApi:
         return signature.decode('utf-8')
 
     def _make_request(self, method: str, path: str, data: dict={}, params: dict={}):
-        """[summary]
+        """Make a request
 
         Args:
-            method (str): [description]
-            path (str): [description]
-            data (dict, optional): [description]. Defaults to {}.
-            params (dict, optional): [description]. Defaults to {}.
+            method (str): The HTTP method should be UPPER CASE.
+            path (str): Specific path.
+            data (dict, optional): Defaults to {}.
+            params (dict, optional): Defaults to {}.
 
         Returns:
             [type]: [description]
@@ -98,14 +92,14 @@ class CoinlistApi:
                 f.write(i['symbol'] + '\n')
 
     def create_order(self, price: float, size: int, symbol: str='ICP-USD', side: str='sell', order_type: str='limit'):
-        """[summary]
+        """Create New Order
 
         Args:
-            price (float): [description]
-            size (int): [description]
-            symbol (str, optional): [description]. Defaults to 'ICP-USD'.
-            side (str, optional): [description]. Defaults to 'sell'.
-            order_type (str, optional): [description]. Defaults to 'limit'.
+            price (float): A client-specified order id.
+            size (int): The quantity to buy or sell.
+            symbol (str, optional): The symbol for which the order is placed. Defaults to 'ICP-USD'.
+            side (str, optional): Can be buy or sell. Defaults to 'sell'.
+            order_type (str, optional): The type of order, which controls how the order will be executed. Defaults to 'limit'.
 
         Returns:
             [type]: [description]
@@ -126,7 +120,7 @@ class CoinlistApi:
         return returned
 
     def create_orders(self, symbol: str):
-        """[summary]
+        """Cancel all orders
 
         Args:
             symbol (str): [description]
@@ -135,13 +129,13 @@ class CoinlistApi:
         print(response.status_code)
 
     def cancel_order(self, order_id: str):
-        """[summary]
+        """Cancel order
 
         Args:
-            order_id (str): [description]
+            order_id (str): Order ID.
 
         Returns:
-            [type]: [description]
+            String: [description]
         """
         params = {'order_id': str(order_id)}
         res = self._make_request('DELETE', f'/v1/orders/{order_id}', data=params)
@@ -179,10 +173,10 @@ class CoinlistApi:
         return res
 
     def get_orders(self, order_id: str):
-        """[summary]
+        """Get Specific Order (by id)
 
         Args:
-            order_id (str): [description]
+            order_id (str): Order to retrieve.
         """
         data={}
         response = self._make_request('GET', f'/v1/symbols/{order_id}', data=data)
@@ -192,7 +186,7 @@ class CoinlistApi:
         """[summary]
 
         Args:
-            symbol (str): [description]
+            symbol (str, optional): 
         """
         data={}
         response = self._make_request('GET', f'/v1/symbols/{symbol}', data=data)
