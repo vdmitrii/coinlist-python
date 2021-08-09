@@ -65,7 +65,7 @@ class CoinlistApi:
             params (dict, optional): Defaults to {}.
 
         Returns:
-            [type]: [description]
+            Dict: JSON
         """
         path_with_params = requests.Request(method, self.endpoint_url + path, params=params).prepare().path_url
         timestamp = str(int(time.time()))
@@ -123,7 +123,7 @@ class CoinlistApi:
         """Cancel all orders
 
         Args:
-            symbol (str): [description]
+            symbol (str): Symbol.
         """
         response = self._make_request('POST', '/v1/orders/bulk')
         print(response.status_code)
@@ -135,20 +135,20 @@ class CoinlistApi:
             order_id (str): Order ID.
 
         Returns:
-            String: [description]
+            Dict: Result of request
         """
         params = {'order_id': str(order_id)}
         res = self._make_request('DELETE', f'/v1/orders/{order_id}', data=params)
         return res
 
     def cancel_by_symbol(self, symbol: str='ICP-USD'):
-        """[summary]
+        """Cancel order by symbol.
 
         Args:
             symbol (str, optional): [description]. Defaults to 'ICP-USD'.
 
         Returns:
-            [type]: [description]
+            Dict: Information of canceled order.
         """
         headers = {'accept': 'application/json'}
         data = {'symbol': symbol}
@@ -156,13 +156,13 @@ class CoinlistApi:
         return res
 
     def cancel_all(self, uids: list=None):
-        """[summary]
+        """Cancel all orders
 
         Args:
-            uids (list, optional): [description]. Defaults to None.
+            uids (list, optional): Defaults to None.
 
         Returns:
-            [type]: [description]
+            Dict: Information of canceled orders.
         """
         uids = uids or None
         headers = {
@@ -183,14 +183,14 @@ class CoinlistApi:
         print(response.status_code)
 
     def get_symbol(self, symbol: str):
-        """[summary]
+        """Get symbol
 
         Args:
             symbol (str, optional): 
         """
         data={}
         response = self._make_request('GET', f'/v1/symbols/{symbol}', data=data)
-        print(response.status_code)
+        return response
 
     def exchange_time(self):
         return None
