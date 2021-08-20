@@ -6,10 +6,8 @@ authors = ["dmitrii"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.9.5"
-python-dotenv = "^0.17.1"
+python = "^3.9.6"
 requests = "^2.25.1"
-dotenv = "^0.0.5"
 
 [tool.poetry.dev-dependencies]
 
